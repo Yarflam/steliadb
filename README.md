@@ -1,9 +1,144 @@
 # SteliaDb
 
-Version 1.0.0 (pretest) -- not publish
+Version 1.0.0 alpha -- not published
+
+SteliaDb has to use on the server side. It's a small database inspire of MongoDB. The usage is similar, consequently you can read examples on their website. You can link the database at your [express](https://github.com/expressjs/express) server.
 
 ## Install
 
-Simple command :
+Execute on your shell:
 
-> $ npm install https://github.com/Yarflam/steliadb
+```bash
+$> npm install https://github.com/Yarflam/steliadb
+```
+
+## Usage
+
+Add the next line at the top of your script:
+
+```js
+const SteliaDb = require('steliadb');
+```
+
+### Open a database
+
+When you want to begin to use it:
+
+```js
+var db = new SteliaDb();
+db.use(path.resolve(__dirname, 'test.bson'));
+```
+
+Replace as you want the filename 'test.bson' (it's BSON format obviously).
+
+### Use a collection
+
+Define your model in JSON format (import or declare it in the JS script):
+
+```json
+{
+    "name": "users",
+    "struct": {
+        "username": { "type": "varchar" },
+        "password": { "type": "varchar" },
+        "age": { "type": "int" },
+        "role": { "type": "varchar" },
+        "create": { "type": "timestamp" }
+    }
+}
+```
+
+Call the function 'getCollection':
+```js
+var users = { ... }; /* or require('./users.json') */
+db.users = db.getCollection(users);
+```
+
+Now, you can manipulate the collection with 'db.users'.
+
+### Insert
+
+It's require one argument { key1: value1, key2: value2 ... keyN: valueN }.
+
+Example:
+```js
+db.users.insert({ username: 'Alice', create: new Date().toISOString() });
+```
+
+You can define any deep of attributes in your model.
+
+### Find or FindSync
+
+It's take two arguments : your search and the options.
+
+Example:
+```js
+db.users
+    .findSync({
+        role: { $regex: 'root$' }
+    }, {
+        username.$: 1,
+        password.$: 1,
+        $sort: { id: -1 }
+    })
+    .map(doc => {
+        console.log(doc);
+    })
+```
+
+**Search:**
+
+- **exists**: be or not be.
+- **$regex**: apply a regex.
+- **$lt**: lower of X.
+- **$lte**: lower or equal of X.
+- **$gt**: greater of X.
+- **$gte**: greater or equal of X.
+- **$in**: has to equal the values in the array.
+- **$nin**: has not to equal the values in the array.
+- **$or**: accept many proposals.
+- **$ne**: have to different of X.
+- **$eq**: have to equal to X.
+
+**Options:**
+
+- **limit**: number of results (you can use it in async mode)
+- **sort**: sort by something (asc: 1, desc: -1), you can use float value.
+- **[attrib].$**: it's the projection of you request, you can return specific attributes.
+
+### Remove
+
+The argument take the same thing of 'find' method.
+
+Like this:
+```js
+db.users.remove({
+    id: { $in: [1,2,3] }
+});
+```
+
+### MapReduce or MapReduceSync
+
+Example (calculate an average):
+```js
+db.users.mapReduceSync(
+    /* Map */
+    () => {
+        if(this.role == 'user') {
+            emit('test', this.age);
+        }
+    },
+    /* Reduce */
+    (key, values) => {
+        return values.reduce((acc, x) => acc + x) / values.length;
+    }
+);
+```
+
+## Bugs
+
+In here, I enumerate the bugs detected during the development and tests.
+
+### db.save()
+
+The cache is not clear.
