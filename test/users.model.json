@@ -1,0 +1,9 @@
+{
+    "name": "users",
+    "struct": {
+        "username": { "type": "varchar" },
+        "password": { "type": "varchar" },
+        "role": { "type": "varchar" },
+        "create": { "type": "timestamp" }
+    }
+}

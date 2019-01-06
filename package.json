@@ -1,0 +1,29 @@
+{
+  "name": "steliadb",
+  "version": "1.0.0",
+  "description": "Node.js small database",
+  "main": "steliadb.js",
+  "scripts": {
+    "test": "node test/test.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Yarflam/steliadb.git"
+  },
+  "keywords": [
+    "database"
+  ],
+  "author": "Yarflam",
+  "license": {
+    "key": "Creative Commons BY-NC-SA License 3.0",
+    "value": 2
+  },
+  "bugs": {
+    "url": "https://github.com/Yarflam/steliadb/issues"
+  },
+  "homepage": "https://github.com/Yarflam/steliadb#readme",
+  "dependencies": {
+    "bson": "^4.0.1",
+    "uniqid": "^5.0.3"
+  }
+}
