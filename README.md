@@ -1,8 +1,17 @@
 # SteliaDb
 
-Version 1.0.0 alpha -- not published
+![license](https://img.shields.io/badge/license-CC_BY--NC--SA-green.svg)
+![version](https://img.shields.io/badge/app-v1.0.0_not_published-blue.svg)
 
-SteliaDb has to use on the server side. It's a small database inspire of MongoDB. The usage is similar, consequently you can read examples on their website. You can link the database at your [express](https://github.com/expressjs/express) server.
+SteliaDb can be able to use on the server side. It's a small database inspire of MongoDB. The usage is similar. You can link the database to your [express](https://github.com/expressjs/express) server.
+
+With the last commit, you can use it in your browser. No save method or synchronization is available but you can manage more easily your data in web application. In the future, I want to work on a synchronization method.
+
+## Prerequisites
+
+You have to install Node.js on your computer (Windows / Linux / Mac / ARM systems).
+
+[Download here](https://nodejs.org/en/download/)
 
 ## Install
 
@@ -142,3 +151,11 @@ In here, I enumerate the bugs detected during the development and tests.
 ### db.save()
 
 The cache is not clear.
+
+## Authors
+
+- Yarflam - *initial work*
+
+## License
+
+The project is licensed under Creative Commons (BY-NC-SA) - see the [LICENSE.md](LICENSE.md) file for details.

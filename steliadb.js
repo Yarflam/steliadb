@@ -1,7 +1,5 @@
-const BSON = require('bson');
 const uniqid = require('uniqid');
 const tools = require('./tools');
-const fs = require('fs');
 
 /* Private Methods -> token */
 const PRIVATE_READ_TOKEN = tools.randChars(32);
@@ -30,16 +28,17 @@ module.exports = class SteliaDb {
     }
 
     /*
-    *	Database
-    */
+     *	Database
+     */
 
     use(path) {
         /* Set a new path */
         this.dbUse = path;
         /* Create the default file */
+        const fs = require('fs');
         if (fs.existsSync(path)) {
             try {
-                const data = BSON.deserialize(fs.readFileSync(path));
+                const data = require('bson').deserialize(fs.readFileSync(path));
                 if (tools.istype(data, 'Object')) {
                     this.dbStore = data;
                     /* Regenerate the index */
@@ -80,8 +79,12 @@ module.exports = class SteliaDb {
 
     save() {
         if (this.dbUse !== null) {
+            const fs = require('fs');
             /* Write all data */
-            fs.writeFileSync(this.dbUse + '.1', BSON.serialize(this.dbStore));
+            fs.writeFileSync(
+                this.dbUse + '.1',
+                require('bson').serialize(this.dbStore)
+            );
             /* Move on */
             if (fs.existsSync(this.dbUse)) {
                 fs.unlinkSync(this.dbUse);
@@ -94,6 +97,11 @@ module.exports = class SteliaDb {
     }
 
     cache(action, data) {
+        if (this.dbUse === null) {
+            return;
+        }
+        /* Load/Save/Reset caches */
+        const fs = require('fs');
         if (this.handleCache === null) {
             /* A cache exists */
             if (fs.existsSync(this.dbUse + '.tmp')) {
@@ -194,17 +202,13 @@ module.exports = class SteliaDb {
     }
 
     /*
-    *	Collections
-    */
+     *	Collections
+     */
 
     build(name) {
         /* Not empty */
         if (
-            !(
-                tools.isset(name) &&
-                tools.istype(name, 'String') &&
-                name.length
-            )
+            !(tools.isset(name) && tools.istype(name, 'String') && name.length)
         ) {
             return false;
         }
@@ -273,8 +277,8 @@ module.exports = class SteliaDb {
     }
 
     /*
-    *	Write
-    */
+     *	Write
+     */
 
     _insert(token, model, args) {
         /* Security */
@@ -484,8 +488,8 @@ module.exports = class SteliaDb {
     }
 
     /*
-    *	Read
-    */
+     *	Read
+     */
 
     _find(token, model, args) {
         args = args || [];
@@ -681,8 +685,8 @@ module.exports = class SteliaDb {
     }
 
     /*
-    *	Tools
-    */
+     *	Tools
+     */
 
     /* Flatten a deep object */
     _flatDeepObj(obj) {
@@ -860,8 +864,8 @@ module.exports = class SteliaDb {
                                 return c.a == c.b
                                     ? 0
                                     : c.a > c.b
-                                        ? -c.order
-                                        : c.order;
+                                    ? -c.order
+                                    : c.order;
                             })
                             .reduce((accum, x) => {
                                 return accum + x;

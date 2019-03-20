@@ -13,9 +13,21 @@ db.drop(true);
 db.users = db.getCollection(users);
 
 /* Create the users */
-db.users.insert({ username: 'Alice', password: 'root', create: new Date().toISOString() });
-db.users.insert({ username: 'Bob', password: 'master', create: new Date().toISOString() });
-db.users.insert({ username: 'Carole', password: 'hacker', create: new Date().toISOString() });
+db.users.insert({
+    username: 'Alice',
+    password: 'root',
+    create: new Date().toISOString()
+});
+db.users.insert({
+    username: 'Bob',
+    password: 'master',
+    create: new Date().toISOString()
+});
+db.users.insert({
+    username: 'Carole',
+    password: 'hacker',
+    create: new Date().toISOString()
+});
 
 /* Update the information */
 db.users.update({ username: 'Alice' }, { $set: { role: 'root' } });
@@ -24,7 +36,7 @@ db.users.update({ username: 'Bob' }, { $unset: { password: 1 } });
 /* Detect the threats */
 var PoI = db.users.mapReduceSync(
     () => {
-        if(this.password == 'hacker') {
+        if (this.password == 'hacker') {
             emit('threats', this.id);
         }
     },
@@ -34,13 +46,11 @@ var PoI = db.users.mapReduceSync(
 );
 
 /* Remove the threats */
-if(PoI.threats || false) {
+if (PoI.threats || false) {
     db.users.remove({ id: { $in: PoI.threats } });
 }
 
 /* Get all the users (sort by the last one) */
-db.users
-    .findSync({}, { $sort: { id: -1 } })
-    .map(user => {
-        console.log(user);
-    });
+db.users.findSync({}, { $sort: { id: -1 } }).map(user => {
+    console.log(user);
+});
