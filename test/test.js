@@ -54,3 +54,6 @@ if (PoI.threats || false) {
 db.users.findSync({}, { $sort: { id: -1 } }).map(user => {
     console.log(user);
 });
+
+/* Enregistre */
+db.save();

@@ -25,6 +25,7 @@ module.exports = class SteliaDb {
         this.handleCache = null;
         this.limitCache = 100;
         this.counterCache = 0;
+        this.bsonMaxSize = 1024 * 1024 * 1024;
     }
 
     /*
@@ -38,7 +39,11 @@ module.exports = class SteliaDb {
         const fs = require('fs');
         if (fs.existsSync(path)) {
             try {
-                const data = require('bson').deserialize(fs.readFileSync(path));
+                /* Use BSON format */
+                const bson = require('bson');
+                bson.setInternalBufferSize(this.bsonMaxSize);
+                /* Deserialize */
+                const data = bson.deserialize(fs.readFileSync(path));
                 if (tools.istype(data, 'Object')) {
                     this.dbStore = data;
                     /* Regenerate the index */
@@ -80,11 +85,11 @@ module.exports = class SteliaDb {
     save() {
         if (this.dbUse !== null) {
             const fs = require('fs');
+            /* Use BSON format */
+            const bson = require('bson');
+            bson.setInternalBufferSize(this.bsonMaxSize);
             /* Write all data */
-            fs.writeFileSync(
-                this.dbUse + '.1',
-                require('bson').serialize(this.dbStore)
-            );
+            fs.writeFileSync(this.dbUse + '.1', bson.serialize(this.dbStore));
             /* Move on */
             if (fs.existsSync(this.dbUse)) {
                 fs.unlinkSync(this.dbUse);
@@ -193,6 +198,11 @@ module.exports = class SteliaDb {
                 return true;
             }
         } else if ((action || false) === true) {
+            /* Remove the older */
+            if (this.handleCache !== null) {
+                this.handleCache.close();
+                fs.unlinkSync(this.dbUse + '.tmp');
+            }
             /* Reset the handle */
             this.handleCache = fs.createWriteStream(this.dbUse + '.tmp');
             this.counterCache = 0;
