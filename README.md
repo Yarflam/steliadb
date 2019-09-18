@@ -192,6 +192,10 @@ bson.serialize(this.dbStore);
 
 Strange thing ... we can't create multi instance of SteliaDb with the same collection. I must understand the problem.
 
+### Delete with the \_id
+
+Currently, I can't explain. If you want to delete a document, use the id (auto increment number) and not the \_id (unique id).
+
 ## Authors
 
 -   Yarflam - _initial work_
