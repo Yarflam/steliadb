@@ -5,7 +5,7 @@
 
 SteliaDb can be able to use on the server side. It's a small database inspire of MongoDB. The usage is similar. You can link the database to your [express](https://github.com/expressjs/express) server.
 
-With the last commit, you can use it in your browser. No save method or synchronization is available but you can manage more easily your data in web application. In the future, I want to work on a synchronization method.
+With the last commit, you can use it in your browser. No save method or synchronization is available but you can manage more easily your data in web application. In the future, I want to work on a synchronization method. If you select this solution, follow the texts begin by `{#}`.
 
 ## Prerequisites
 
@@ -15,18 +15,38 @@ You have to install Node.js on your computer (Windows / Linux / Mac / ARM system
 
 ## Install
 
-Execute on your shell:
+Install in your project:
 
 ```bash
 $> npm install https://github.com/Yarflam/steliadb
 ```
 
+{#} Or clone the project:
+
+```bash
+$> git clone https://github.com/Yarflam/steliadb
+```
+
+## Build
+
+{#} The build is only required if you want to use it in the browser:
+
+```bash
+$> npm run build
+```
+
 ## Usage
 
-Add the next line at the top of your script:
+Add the next line at the top of your node.js script:
 
 ```js
 const SteliaDb = require('steliadb');
+```
+
+{#} Or move the script built (**./build/steliadb.bundle.js**) in your project and add it in your HTML code:
+
+```html
+<script type="text/javascript" src="js/steliadb.bundle.js"></script>
 ```
 
 ### Open a database
@@ -39,6 +59,8 @@ db.use(path.resolve(__dirname, 'test.bson'));
 ```
 
 Replace as you want the filename 'test.bson' (it's BSON format obviously).
+
+{#} If you use in the browser, you don't need to select a file. Write only the first line.
 
 ### Use a collection
 

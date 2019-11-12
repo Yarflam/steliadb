@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+    <head>
+        <meta charset="utf-8" />
+        <title>Test SteliaDb Bundle</title>
+        <style type="text/css">
+            table th,
+            table td {
+                background-color: rgba(0, 0, 0, 0.15);
+                padding: 10px;
+            }
+        </style>
+    </head>
+    <body>
+        <table>
+            <thead>
+                <tr>
+                    <th>Firstname</th>
+                    <th>Lastname</th>
+                    <th>Age</th>
+                </tr>
+            </thead>
+            <tbody></tbody>
+        </table>
+        <!-- BEGIN SCRIPTS -->
+        <script
+            type="text/javascript"
+            src="../build/steliadb.bundle.js"
+        ></script>
+        <script type="text/javascript">
+            /* Create the databse */
+            var db = new SteliaDb();
+            db.users = db.getCollection({
+                name: 'users',
+                struct: {
+                    firstname: { type: 'varchar' },
+                    lastname: { type: 'varchar' },
+                    age: { type: 'int' }
+                }
+            });
+
+            /* Add my first users */
+            db.users.insert({
+                firstname: 'Alice',
+                lastname: 'Monero',
+                age: 18
+            });
+
+            db.users.insert({
+                firstname: 'Bob',
+                lastname: 'Cryptic',
+                age: 26
+            });
+
+            db.users.insert({
+                firstname: 'Noémie',
+                lastname: 'Rouyo',
+                age: 22
+            });
+
+            db.users.insert({
+                firstname: 'Capsoline',
+                lastname: 'Argos',
+                age: 22
+            });
+
+            db.users.insert({
+                firstname: 'Toto',
+                lastname: 'Spok',
+                age: 16
+            });
+
+            /* Show them */
+            var table = document.querySelector('table > tbody');
+            db.users
+                /* Sort by name and age */
+                .findSync({}, { $sort: { firstname: 1, age: 1 } })
+                /* For each user ... */
+                .map(function(user) {
+                    /* ... create a row */
+                    var tr = document.createElement('tr');
+                    tr.innerHTML =
+                        '<td>' +
+                        ['firstname', 'lastname', 'age']
+                            .map(function(key) {
+                                return user[key];
+                            })
+                            .join('</td><td>') +
+                        '</td>';
+                    table.appendChild(tr);
+                    return user;
+                });
+        </script>
+        <!-- END OF SCRIPTS -->
+    </body>
+</html>

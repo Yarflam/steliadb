@@ -2,8 +2,9 @@
     "name": "steliadb",
     "version": "1.0.1",
     "description": "Node.js small database",
-    "main": "steliadb.js",
+    "main": "index.js",
     "scripts": {
+        "build": "webpack --config webpack.conf.js",
         "test": "node test/test.js"
     },
     "repository": {
@@ -23,9 +24,18 @@
     },
     "homepage": "https://github.com/Yarflam/steliadb#readme",
     "dependencies": {
+        "regenerator-runtime": "^0.13.3"
+    },
+    "devDependencies": {
+        "@babel/core": "^7.7.2",
+        "@babel/preset-env": "^7.7.1",
+        "babel-loader": "^8.0.6",
         "bson": "^4.0.1",
         "eslint": "^5.15.3",
         "prettier-eslint": "^8.8.2",
-        "uniqid": "^5.0.3"
+        "uglifyjs-webpack-plugin": "^2.2.0",
+        "uniqid": "^5.0.3",
+        "webpack": "^4.41.2",
+        "webpack-cli": "^3.3.10"
     }
 }

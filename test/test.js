@@ -1,4 +1,4 @@
-const SteliaDb = require('../steliadb');
+const SteliaDb = require('../core');
 const users = require('./users.model.json');
 const path = require('path');
 

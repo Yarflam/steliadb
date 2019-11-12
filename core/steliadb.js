@@ -5,7 +5,7 @@ const tools = require('./tools');
 const PRIVATE_READ_TOKEN = tools.randChars(32);
 const PRIVATE_WRITE_TOKEN = tools.randChars(32);
 
-module.exports = class SteliaDb {
+class SteliaDb {
     constructor() {
         /* Default dbStore */
         this.dbUse = null;
@@ -36,7 +36,7 @@ module.exports = class SteliaDb {
         /* Set a new path */
         this.dbUse = path;
         /* Create the default file */
-        const fs = require('fs');
+        const fs = tools.getModuleFs();
         if (fs.existsSync(path)) {
             try {
                 /* Use BSON format */
@@ -84,7 +84,7 @@ module.exports = class SteliaDb {
 
     save() {
         if (this.dbUse !== null) {
-            const fs = require('fs');
+            const fs = tools.getModuleFs();
             /* Use BSON format */
             const bson = require('bson');
             bson.setInternalBufferSize(this.bsonMaxSize);
@@ -106,11 +106,11 @@ module.exports = class SteliaDb {
             return;
         }
         /* Load/Save/Reset caches */
-        const fs = require('fs');
+        const fs = tools.getModuleFs();
         if (this.handleCache === null) {
             /* A cache exists */
             if (fs.existsSync(this.dbUse + '.tmp')) {
-                var ref;
+                let ref;
                 /* Replay the calls */
                 fs.readFileSync(this.dbUse + '.tmp')
                     .toString()
@@ -344,14 +344,14 @@ module.exports = class SteliaDb {
 
     _update(token, model, args) {
         args = args || [];
-        var search = args[0] || this.default.find.search,
+        let search = args[0] || this.default.find.search,
             modifier = args[1] || {};
         /* Security */
         if (!this._secureReadToken(token)) {
             return false;
         }
         /* Execute find method */
-        var docs,
+        let docs,
             proc = this._find(token, model, [
                 search,
                 { limit: 100 },
@@ -444,7 +444,7 @@ module.exports = class SteliaDb {
     }
 
     _remove(token, model, args) {
-        var ref,
+        let ref,
             docs,
             search = args[0] || this.default.find.search,
             options = args[1] || this.default.find.options,
@@ -503,7 +503,7 @@ module.exports = class SteliaDb {
 
     _find(token, model, args) {
         args = args || [];
-        var test,
+        let test,
             docs,
             projection,
             search = args[0] || this.default.find.search,
@@ -539,7 +539,7 @@ module.exports = class SteliaDb {
             ? this._quickSortDocs(docs, options.$sort)
             : docs;
         /* Declare a generator */
-        var self = this,
+        let self = this,
             gen = {
                 i: 0,
                 doc: null,
@@ -606,7 +606,7 @@ module.exports = class SteliaDb {
     }
 
     _findSync(token, model, args) {
-        var docs,
+        let docs,
             proc,
             output = [],
             search = args[0] || this.default.find.search,
@@ -648,7 +648,7 @@ module.exports = class SteliaDb {
             tools.istype(args[1], 'Function')
         ) {
             /* Define the process */
-            var docs,
+            let docs,
                 proc,
                 reduceOutput,
                 mapOutput = {},
@@ -659,8 +659,8 @@ module.exports = class SteliaDb {
                     mapOutput[key].push(value);
                 };
             /* Prepare the functions */
-            var mapFct = new Function(
-                    'var emit=this.emit;(' +
+            let mapFct = new Function(
+                    'let emit=this.emit;(' +
                         args[0]
                             .toString()
                             .replace(
@@ -700,7 +700,7 @@ module.exports = class SteliaDb {
 
     /* Flatten a deep object */
     _flatDeepObj(obj) {
-        var i = 0,
+        let i = 0,
             flatObj = {},
             indexLayer = [],
             dataLayer = [];
@@ -733,7 +733,7 @@ module.exports = class SteliaDb {
 
     /* Extrude a flat object */
     _extFlatObj(flatObj) {
-        var obj = {};
+        let obj = {};
         Object.entries(flatObj).map(([key, value] = _) => {
             this._setDeepProp(obj, key, value);
         });
@@ -798,7 +798,7 @@ module.exports = class SteliaDb {
                     return mode == 'OR' ? accum || op : accum && op;
                 });
         } else {
-            var test = [],
+            let test = [],
                 found = 0;
             if (tools.isset(cdt.$exists)) {
                 test.push(
@@ -807,7 +807,7 @@ module.exports = class SteliaDb {
                 );
             }
             if (tools.isset(cdt.$regex)) {
-                var regex = new RegExp(String(cdt.$regex));
+                let regex = new RegExp(String(cdt.$regex));
                 test.push((String(value).match(regex) !== null) >> 0);
             }
             if (tools.isset(cdt.$lt)) {
@@ -845,7 +845,7 @@ module.exports = class SteliaDb {
 
     /* Apply quicksort algorithm on documents */
     _quickSortDocs(table, options) {
-        var i,
+        let i,
             c = {},
             pivot = null,
             left = [],
@@ -955,4 +955,6 @@ module.exports = class SteliaDb {
         }
         return value;
     }
-};
+}
+
+module.exports = SteliaDb;
