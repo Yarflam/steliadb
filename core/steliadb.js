@@ -948,6 +948,13 @@ class SteliaDb {
             case 'array':
                 value = Array.isArray(value) ? value : [];
                 break;
+            case 'object':
+            case 'collection':
+                value =
+                    value instanceof Object && !Array.isArray(value)
+                        ? value
+                        : {};
+                break;
             default:
                 value = null;
                 break;
