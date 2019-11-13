@@ -55,9 +55,9 @@ var Tools = {
     /* Get a random string */
     alpha: 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789',
     randChars: (n, letters) => {
-        var o = '',
-            n = n >> 0 || 1,
-            letters = letters || Tools.alpha;
+        var o = '';
+        n = n >> 0 || 1;
+        letters = letters || Tools.alpha;
         while (n--) {
             o += letters[Tools.randInt(0, letters.length)];
         }

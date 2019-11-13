@@ -48,7 +48,7 @@ class SteliaDb {
                     this.dbStore = data;
                     /* Regenerate the index */
                     this.dbIndex = Object.entries(this.dbStore)
-                        .map(([name, docs] = _) => {
+                        .map(([name, docs]) => {
                             return [
                                 name,
                                 docs
@@ -56,7 +56,7 @@ class SteliaDb {
                                         return [doc._id, doc.id];
                                     })
                                     .reduce(
-                                        (accum, [_id, id] = _) => {
+                                        (accum, [_id, id]) => {
                                             accum._id.push(_id);
                                             accum.id = Math.max(
                                                 accum.id,
@@ -68,12 +68,14 @@ class SteliaDb {
                                     )
                             ];
                         })
-                        .reduce((accum, [name, doc] = _) => {
+                        .reduce((accum, [name, doc]) => {
                             accum[name] = doc;
                             return accum;
                         }, {});
                 }
-            } catch (e) {}
+            } catch (e) {
+                console.error(e);
+            }
         } else {
             this.save();
         }
@@ -252,7 +254,8 @@ class SteliaDb {
         }
         /* Prepare */
         this.build(model.name);
-        /* Assign the route */
+        /* Assign the methods */
+        model = JSON.parse(JSON.stringify(model));
         [
             'insert',
             'update',
@@ -304,7 +307,7 @@ class SteliaDb {
             }
             /* Clean up and securize the data */
             doc = Object.entries(this._flatDeepObj(doc))
-                .map(([key, value] = _) => {
+                .map(([key, value]) => {
                     if (this._getDeepProp(model.struct, key) !== null) {
                         return [
                             key,
@@ -361,7 +364,7 @@ class SteliaDb {
             docs.map(doc => {
                 /* SET */
                 if (tools.isset(modifier.$set)) {
-                    Object.entries(modifier.$set).map(([key, value] = _) => {
+                    Object.entries(modifier.$set).map(([key, value]) => {
                         if (
                             key != '_id' &&
                             key != 'id' &&
@@ -381,7 +384,7 @@ class SteliaDb {
                 }
                 /* UNSET */
                 if (tools.isset(modifier.$unset)) {
-                    Object.entries(modifier.$unset).map(([key, value] = _) => {
+                    Object.entries(modifier.$unset).map(([key]) => {
                         if (
                             key != '_id' &&
                             key != 'id' &&
@@ -394,7 +397,7 @@ class SteliaDb {
                 }
                 /* RENAME */
                 if (tools.isset(modifier.$rename)) {
-                    Object.entries(modifier.$rename).map(([key, value] = _) => {
+                    Object.entries(modifier.$rename).map(([key, value]) => {
                         if (
                             key != '_id' &&
                             key != 'id' &&
@@ -524,10 +527,10 @@ class SteliaDb {
         options.limit = options.limit || 10;
         /* Projection */
         projection = Object.entries(options)
-            .filter(([key, value] = _) => {
+            .filter(([key, value]) => {
                 return value && key.match(new RegExp('\\.\\$$'));
             })
-            .map(([key, value] = _) => {
+            .map(([key]) => {
                 return key.slice(0, -2);
             });
         if (projection.length && projection.indexOf('_id') < 0) {
@@ -548,7 +551,7 @@ class SteliaDb {
                     while (this.i < docs.length) {
                         this.doc = docs[this.i];
                         /* Checker */
-                        test = Object.entries(search).map(([key, cdt] = _) => {
+                        test = Object.entries(search).map(([key, cdt]) => {
                             if (self._getDeepProp(model.struct, key) !== null) {
                                 return self._conditions(
                                     self._getDeepProp(this.doc, key),
@@ -569,18 +572,15 @@ class SteliaDb {
                                         Object.entries(
                                             self._flatDeepObj(this.doc)
                                         )
-                                            .filter(([key, value] = _) => {
+                                            .filter(([key]) => {
                                                 return (
                                                     projection.indexOf(key) >= 0
                                                 );
                                             })
-                                            .reduce(
-                                                (accum, [key, value] = _) => {
-                                                    accum[key] = value;
-                                                    return accum;
-                                                },
-                                                {}
-                                            )
+                                            .reduce((accum, [key, value]) => {
+                                                accum[key] = value;
+                                                return accum;
+                                            }, {})
                                     )
                                 );
                             }
@@ -682,7 +682,7 @@ class SteliaDb {
             }
             /* Execute the Reduce */
             reduceOutput = Object.entries(mapOutput)
-                .map(([key, values] = _) => {
+                .map(([key, values]) => {
                     return [key, reduceFct(key, values)];
                 })
                 .reduce((accum, [key, value]) => {
@@ -734,7 +734,7 @@ class SteliaDb {
     /* Extrude a flat object */
     _extFlatObj(flatObj) {
         let obj = {};
-        Object.entries(flatObj).map(([key, value] = _) => {
+        Object.entries(flatObj).map(([key, value]) => {
             this._setDeepProp(obj, key, value);
         });
         return obj;
@@ -798,8 +798,7 @@ class SteliaDb {
                     return mode == 'OR' ? accum || op : accum && op;
                 });
         } else {
-            let test = [],
-                found = 0;
+            let test = [];
             if (tools.isset(cdt.$exists)) {
                 test.push(
                     ((cdt.$exists && value !== null) ||
@@ -858,7 +857,7 @@ class SteliaDb {
                 if (
                     ((a, b) => {
                         return Object.entries(options)
-                            .map(([key, order] = _) => {
+                            .map(([key, order]) => {
                                 /* Bayesian Mind */
                                 [c.sign, c.order] = [
                                     order > 0 ? 1 : -1,
@@ -874,8 +873,8 @@ class SteliaDb {
                                 return c.a == c.b
                                     ? 0
                                     : c.a > c.b
-                                    ? -c.order
-                                    : c.order;
+                                        ? -c.order
+                                        : c.order;
                             })
                             .reduce((accum, x) => {
                                 return accum + x;

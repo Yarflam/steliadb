@@ -1,4 +1,4 @@
-const regeneratorRuntime = require('regenerator-runtime');
+require('regenerator-runtime');
 const SteliaDb = require('./steliadb');
 
 /* Browser Support */

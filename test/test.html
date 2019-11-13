@@ -28,16 +28,19 @@
             src="../build/steliadb.bundle.js"
         ></script>
         <script type="text/javascript">
-            /* Create the databse */
-            var db = new SteliaDb();
-            db.users = db.getCollection({
+            /* Define the 'users' model */
+            const users_model = {
                 name: 'users',
                 struct: {
                     firstname: { type: 'varchar' },
                     lastname: { type: 'varchar' },
                     age: { type: 'int' }
                 }
-            });
+            };
+
+            /* Create the databse */
+            var db = new SteliaDb();
+            db.users = db.getCollection(users_model);
 
             /* Add my first users */
             db.users.insert({
@@ -70,9 +73,18 @@
                 age: 16
             });
 
+            /* Clone the database */
+            var dbClone = new SteliaDb();
+            dbClone.users = dbClone.getCollection(users_model);
+            db.users.findSync({}).map(function(user) {
+                user.lastname = user.lastname.toUpperCase();
+                dbClone.users.insert(user);
+                return user;
+            });
+
             /* Show them */
             var table = document.querySelector('table > tbody');
-            db.users
+            dbClone.users
                 /* Sort by name and age */
                 .findSync({}, { $sort: { firstname: 1, age: 1 } })
                 /* For each user ... */

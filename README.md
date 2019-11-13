@@ -214,9 +214,20 @@ bson.serialize(this.dbStore);
 
 Strange thing ... we can't create multi instance of SteliaDb with the same collection. I must understand the problem.
 
+Fixed on November 13, 2019:
+
+```js
+/* Duplicate the model before to assign the methods */
+model = JSON.parse(JSON.stringify(model));
+```
+
 ### Delete with the \_id
 
+{{
 Currently, I can't explain. If you want to delete a document, use the id (auto increment number) and not the \_id (unique id).
+}}
+
+It's difficult to reproduce the bug.
 
 ## Authors
 
