@@ -16,8 +16,8 @@ class SteliaDb {
             find: {
                 search: {},
                 options: {
-                    limit: 10,
-                    deleteMany: false
+                    $limit: 10,
+                    $deleteMany: false
                 }
             }
         };
@@ -271,6 +271,9 @@ class SteliaDb {
                 return this['_' + method](PRIVATE_READ_TOKEN, model, args);
             };
         });
+        /* Alias */
+        model.delete = model.remove;
+        /* Return the model */
         return model;
     }
 
@@ -451,11 +454,13 @@ class SteliaDb {
             docs,
             search = args[0] || this.default.find.search,
             options = args[1] || this.default.find.options,
-            deleteMany = options.deleteMany || false;
+            deleteMany = options.$deleteMany || false;
         /* Security */
         if (!this._secureReadToken(token)) {
             return false;
         }
+        /* Correct request */
+        deleteMany = this._secureData(deleteMany, 'bool');
         /* Execute find method */
         docs = this._findSync(token, model, [
             search,
@@ -524,14 +529,17 @@ class SteliaDb {
         if (!tools.istype(options, 'Object')) {
             options = this.default.find.options;
         }
-        options.limit = options.limit || 10;
+        options.$limit = Math.abs(
+            this._secureData(options.$limit, 'int') || 10
+        );
+        options.$skip = Math.abs(this._secureData(options.$skip, 'int') || 0);
         /* Projection */
         projection = Object.entries(options)
             .filter(([key, value]) => {
-                return value && key.match(new RegExp('\\.\\$$'));
+                return value && key.match(new RegExp('^[^$]'));
             })
             .map(([key]) => {
-                return key.slice(0, -2);
+                return key;
             });
         if (projection.length && projection.indexOf('_id') < 0) {
             projection.push('_id');
@@ -550,7 +558,7 @@ class SteliaDb {
                 init: function*() {
                     while (this.i < docs.length) {
                         this.doc = docs[this.i];
-                        /* Checker */
+                        /* Checking */
                         test = Object.entries(search).map(([key, cdt]) => {
                             if (self._getDeepProp(model.struct, key) !== null) {
                                 return self._conditions(
@@ -560,8 +568,15 @@ class SteliaDb {
                             }
                             return 0;
                         });
-                        /* Add */
+                        /* Found or not */
                         if (Math.min(...test)) {
+                            /* Skip */
+                            if (options.$skip) {
+                                options.$skip--;
+                                this.i++;
+                                continue;
+                            }
+                            /* Add the document */
                             if (writeToken && !projection.length) {
                                 this.results.push(this.doc);
                             } else if (!projection.length) {
@@ -587,8 +602,8 @@ class SteliaDb {
                         }
                         /* Continue or stop */
                         if (
-                            (options.limit || false) &&
-                            this.results.length >= options.limit &&
+                            (options.$limit || false) &&
+                            this.results.length >= options.$limit &&
                             this.i + 1 < docs.length
                         ) {
                             yield this.results;
@@ -608,6 +623,7 @@ class SteliaDb {
     _findSync(token, model, args) {
         let docs,
             proc,
+            noLimit,
             output = [],
             search = args[0] || this.default.find.search,
             options = args[1] || this.default.find.options;
@@ -615,11 +631,14 @@ class SteliaDb {
         if (!this._secureReadToken(token)) {
             return false;
         }
+        /* Limit */
+        noLimit = !(options.$limit || false);
+        options.$limit = noLimit ? 100 : options.$limit;
         /* Treatment */
-        options.limit = 100;
         proc = this._find(token, model, [search, options]);
         while ((docs = proc.next().value)) {
             output = output.concat(docs);
+            if (!noLimit) break;
         }
         return output;
     }
@@ -954,6 +973,10 @@ class SteliaDb {
                     value instanceof Object && !Array.isArray(value)
                         ? value
                         : {};
+                break;
+            case 'bool':
+            case 'boolean':
+                value = Boolean(value);
                 break;
             default:
                 value = null;

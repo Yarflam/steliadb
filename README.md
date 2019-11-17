@@ -136,9 +136,10 @@ db.users
 
 **Options:**
 
--   **limit**: number of results (you can use it in async mode)
--   **sort**: sort by something (asc: 1, desc: -1), you can use float value.
--   **[attrib].\$**: it's the projection of you request, you can return specific attributes.
+-   **[attrib]**: it's the projection of you request, you can return specific attributes.
+-   **\$limit**: number of results (you can use it in async mode)
+-   **\$skip**: skip some starting results.
+-   **\$sort**: sort by something (asc: 1, desc: -1), you can use float value.
 
 ### Remove
 
